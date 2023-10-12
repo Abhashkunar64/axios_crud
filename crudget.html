@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <form onsubmit="saveToLocalStorage(event)">
+      <label> Name</label>
+      <input id='username' type="text" name="username" required/>
+
+      <label> EmailId</label>
+      <input id='email' type="email" name="emailId" required/>
+
+      <label> Phone Number</label>
+      <input id='phanenumber' type="tel" name="phonenumber" />
+
+      <button onclick="submitForm()"> Submit </button>
+    </form>
+
+    <div id="data"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.5.1/axios.min.js"></script>
+    <script>
+      function submitForm() {
+        const username = document.querySelector('#username').value;
+        const email = document.querySelector('#email').value;
+        const phonenumber = document.querySelector('#phonenumber').value;
+
+        axios.post('https://crudcrud.com/api/6c750bbbba724b1b97dfba8411c3f654/user', {
+          username: username,
+          email: email,
+          phonenumber: phonenumber
+        })
+        .then((response) => {
+          console.log(response);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+
+        axios.get('https://crudcrud.com/api/6c750bbbba724b1b97dfba8411c3f654/user')
+        .then((response) => {
+          console.log(response);
+
+          var html = "";
+
+          for (var i = 0; i < response.data.length; i++) {
+            html += "<p>" + response.data[i].username + " " + response.data[i].email + " " + response.data[i].phonenumber + " <button onclick='deleteData(\"" + response.data[i]._id + "\")'>Delete</button></p>";
+          }
+
+          document.getElementById("data").innerHTML = html;
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+      }
+
+      function deleteData(id) {
+        axios.delete("https://crudcrud.com/api/6c750bbbba724b1b97dfba8411c3f654/" + id)
+          .then((response) => {
+            console.log(response);
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+
+        location.reload();
+      }
+    </script>
+  </body>
+</html>
