@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h2>Product Form</h2>
+
+<form id="productForm">
+  <label for="pname">Product Name:</label><br>
+  <input type="text" id="pname" name="pname"><br>
+  <label for="cost">Selling cost:</label><br>
+  <input type="number" id="cost" name="cost"><br><br>
+  <input type="submit" value="Submit">
+</form> 
+
+<h2>Product Information</h2>
+<div id="productInfo"></div>
+
+<h2>Total Cost</h2>
+<div id="totalCost"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+<script>
+var apiEndpoint = 'https://crudcrud.com/api/0a3ab6518a4d496b89e6ccfd47f8cd43/user';
+
+document.getElementById('productForm').addEventListener('submit', function(event) {
+  event.preventDefault();
+
+  var pname = document.getElementById('pname').value;
+  var cost = Number(document.getElementById('cost').value);
+
+  axios.post(apiEndpoint, { pname: pname, cost: cost })
+    .then(function (response) {
+      var products = JSON.parse(localStorage.getItem('products')) || [];
+      products.push(response.data);
+      localStorage.setItem('products', JSON.stringify(products));
+
+      displayProducts();
+    })
+    .catch(function (error) {
+      console.error(error);
+    });
+});
+
+function displayProducts() {
+  var products = JSON.parse(localStorage.getItem('products')) || [];
+  
+  var productInfoHTML = '';
+  var totalCost = 0;
+
+  products.forEach(function(product, index) {
+    productInfoHTML += 'Product Name: ' + product.pname + ', Cost: ' + product.cost;
+    productInfoHTML += ' <button onclick="deleteProduct(' + index + ')">Delete</button><br>';
+    totalCost += product.cost;
+  });
+
+  document.getElementById('productInfo').innerHTML = productInfoHTML;
+  document.getElementById('totalCost').innerHTML = 'Total Cost: ' + totalCost;
+}
+
+window.deleteProduct = function(index) {
+  var products = JSON.parse(localStorage.getItem('products')) || [];
+
+  axios.delete(apiEndpoint + '/' + products[index]._id)
+    .then(function () {
+      products.splice(index, 1);
+      localStorage.setItem('products', JSON.stringify(products));
+      displayProducts();
+    })
+    .catch(function (error) {
+      console.error(error);
+    });
+}
+
+displayProducts();
+</script>
+
+</body>
+</html>
